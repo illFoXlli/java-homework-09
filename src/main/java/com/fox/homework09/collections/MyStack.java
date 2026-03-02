@@ -1,32 +1,27 @@
 package com.fox.homework09.collections;
 
-public class MyStack {
-    private Object[] data = new Object[10];
-    private int size = 0;
+public class MyStack<T> {
 
-    public void push(Object value) {
+    private Object[] data = new Object[10];
+    private int size;
+
+    public void push(T value) {
         ensureCapacity();
         data[size++] = value;
     }
 
-    public Object pop() {
+    public T peek() {
+        return size == 0 ? null : (T) data[size - 1];
+    }
+
+    public T pop() {
         if (size == 0) {
             return null;
         }
-        Object value = data[--size];
+
+        T value = (T) data[--size];
         data[size] = null;
         return value;
-    }
-
-    public Object peek() {
-        if (size == 0) {
-            return null;
-        }
-        return data[size - 1];
-    }
-
-    public int size() {
-        return size;
     }
 
     public void clear() {
@@ -34,12 +29,8 @@ public class MyStack {
         size = 0;
     }
 
-    public void remove(int index) {
-        checkIndex(index);
-        for (int i = index; i < size - 1; i++) {
-            data[i] = data[i + 1];
-        }
-        data[--size] = null;
+    public int size() {
+        return size;
     }
 
     private void ensureCapacity() {
@@ -50,9 +41,15 @@ public class MyStack {
         }
     }
 
-    private void checkIndex(int index) {
+    public void remove(int index) {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException();
         }
+
+        for (int i = index; i < size - 1; i++) {
+            data[i] = data[i + 1];
+        }
+
+        data[--size] = null;
     }
 }

@@ -1,24 +1,25 @@
 package com.fox.homework09.collections;
 
-public class MyLinkedList {
-    private Node first;
-    private Node last;
+public class MyLinkedList<T> {
+
+    private Node<T> first;
+    private Node<T> last;
     private int size;
 
-    private static class Node {
-        Object value;
-        Node prev;
-        Node next;
+    private static class Node<T> {
+        T value;
+        Node<T> prev;
+        Node<T> next;
 
-        Node(Object value, Node prev, Node next) {
+        Node(T value, Node<T> prev, Node<T> next) {
             this.value = value;
             this.prev = prev;
             this.next = next;
         }
     }
 
-    public void add(Object value) {
-        Node newNode = new Node(value, last, null);
+    public void add(T value) {
+        Node<T> newNode = new Node<>(value, last, null);
 
         if (last == null) {
             first = newNode;
@@ -29,40 +30,12 @@ public class MyLinkedList {
         last = newNode;
         size++;
     }
-    public int size() {
-        return size;
-    }
-    public void clear() {
-        first = null;
-        last = null;
-        size = 0;
-    }
-    public Object get(int index) {
-        checkIndex(index);
 
-        Node current = first;
-        for (int i = 0; i < index; i++) {
-            current = current.next;
-        }
-
-        return current.value;
-    }
-
-    private void checkIndex(int index) {
-        if (index < 0 || index >= size) {
-            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
-        }
-    }
     public void remove(int index) {
-        checkIndex(index);
+        Node<T> current = getNode(index);
 
-        Node current = first;
-        for (int i = 0; i < index; i++) {
-            current = current.next;
-        }
-
-        Node prev = current.prev;
-        Node next = current.next;
+        Node<T> prev = current.prev;
+        Node<T> next = current.next;
 
         if (prev == null) {
             first = next;
@@ -79,4 +52,41 @@ public class MyLinkedList {
         size--;
     }
 
+    public void clear() {
+        first = null;
+        last = null;
+        size = 0;
+    }
+
+    public int size() {
+        return size;
+    }
+
+    public T get(int index) {
+        return getNode(index).value;
+    }
+
+    private Node<T> getNode(int index) {
+        checkIndex(index);
+
+        if (index < size / 2) {
+            Node<T> current = first;
+            for (int i = 0; i < index; i++) {
+                current = current.next;
+            }
+            return current;
+        } else {
+            Node<T> current = last;
+            for (int i = size - 1; i > index; i--) {
+                current = current.prev;
+            }
+            return current;
+        }
+    }
+
+    private void checkIndex(int index) {
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException();
+        }
+    }
 }

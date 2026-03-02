@@ -1,86 +1,135 @@
 package com.fox.homework09.collections;
 
-public class MyHashMap {
-    private Node head;
-    private int size;
+public class MyHashMap<K, V> {
 
-    private static class Node {
-        Object key;
-        Object value;
-        Node next;
+    private static class Node<K, V> {
+        final K key;
+        V value;
+        Node<K, V> next;
 
-        Node(Object key, Object value, Node next) {
+        Node(K key, V value) {
             this.key = key;
             this.value = value;
-            this.next = next;
         }
     }
 
-    public void put(Object key, Object value) {
-        if (head == null) {
-            head = new Node(key, value, null);
-            size++;
-            return;
-        }
+    private Node<K, V>[] table;
 
-        Node current = head;
-        while (true) {
-            if (current.key.equals(key)) {
-                current.value = value; // перезапись значения
+    private int size;
+
+    private static final int DEFAULT_CAPACITY = 16;
+
+    private static final float LOAD_FACTOR = 0.75f;
+
+
+    public MyHashMap() {
+        table = new Node[DEFAULT_CAPACITY];
+    }
+
+
+    public void put(K key, V value) {
+        resizeIfNeeded();
+
+        int index = getIndex(key);
+
+        Node<K, V> current = table[index];
+
+        while (current != null) {
+            if (keysEqual(current.key, key)) {
+                current.value = value;
                 return;
-            }
-            if (current.next == null) {
-                break;
             }
             current = current.next;
         }
 
-        current.next = new Node(key, value, null);
+        Node<K, V> newNode = new Node<>(key, value);
+        newNode.next = table[index];
+        table[index] = newNode;
+
         size++;
     }
 
-    public Object get(Object key) {
-        Node current = head;
+
+    public V get(K key) {
+        int index = getIndex(key);
+
+        Node<K, V> current = table[index];
+
         while (current != null) {
-            if (current.key.equals(key)) {
+            if (keysEqual(current.key, key)) {
                 return current.value;
             }
             current = current.next;
         }
+
         return null;
     }
 
-    public void remove(Object key) {
-        if (head == null) {
-            return;
-        }
 
-        if (head.key.equals(key)) {
-            head = head.next;
-            size--;
-            return;
-        }
+    public void remove(K key) {
+        int index = getIndex(key);
 
-        Node prev = head;
-        Node current = head.next;
+        Node<K, V> current = table[index];
+        Node<K, V> prev = null;
 
         while (current != null) {
-            if (current.key.equals(key)) {
-                prev.next = current.next;
+            if (keysEqual(current.key, key)) {
+                if (prev == null) {
+                    table[index] = current.next;
+                } else {
+                    prev.next = current.next;
+                }
+
                 size--;
                 return;
             }
+
             prev = current;
             current = current.next;
         }
     }
 
+
     public void clear() {
-        head = null;
+        table = new Node[DEFAULT_CAPACITY];
         size = 0;
     }
 
+
     public int size() {
         return size;
+    }
+
+
+    private int getIndex(K key) {
+        if (key == null) {
+            return 0;
+        }
+
+        return Math.abs(key.hashCode()) % table.length;
+    }
+
+
+    private boolean keysEqual(K k1, K k2) {
+        return k1 == null ? k2 == null : k1.equals(k2);
+    }
+
+
+    private void resizeIfNeeded() {
+        if (size >= table.length * LOAD_FACTOR) {
+
+            Node<K, V>[] oldTable = table;
+
+            table = new Node[oldTable.length * 2];
+
+            size = 0;
+
+            for (Node<K, V> node : oldTable) {
+                while (node != null) {
+                    put(node.key, node.value);
+                    node = node.next;
+                }
+            }
+        }
     }
 }

@@ -1,63 +1,60 @@
 package com.fox.homework09.collections;
 
-public class MyQueue {
+public class MyQueue<T> {
 
-    private Node head;
-    private Node tail;
-    private int size;
+    private static class Node<T> {
+        T value;
+        Node<T> next;
 
-    private static class Node {
-        Object value;
-        Node next;
-
-        Node(Object value) {
+        Node(T value) {
             this.value = value;
         }
     }
 
-    public void add(Object value) {
-        Node newNode = new Node(value);
+    private Node<T> head;
+    private Node<T> tail;
+    private int size;
+
+    public void add(T value) {
+        Node<T> newNode = new Node<>(value);
 
         if (tail == null) {
-            head = newNode;
+            head = tail = newNode;
         } else {
             tail.next = newNode;
+            tail = newNode;
         }
 
-        tail = newNode;
         size++;
     }
 
-    public Object peek() {
-        if (size == 0) {
-            return null;
-        }
-        return head.value;
+    public T peek() {
+        return head == null ? null : head.value;
     }
 
-    public Object poll() {
-        if (size == 0) {
+    public T poll() {
+        if (head == null) {
             return null;
         }
 
-        Object value = head.value;
+        T value = head.value;
         head = head.next;
-        size--;
 
-        if (size == 0) {
+        if (head == null) {
             tail = null;
         }
 
+        size--;
         return value;
-    }
-
-    public int size() {
-        return size;
     }
 
     public void clear() {
         head = null;
         tail = null;
         size = 0;
+    }
+
+    public int size() {
+        return size;
     }
 }
